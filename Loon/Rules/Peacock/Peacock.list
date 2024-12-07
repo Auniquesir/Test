@@ -1,0 +1,5 @@
+# 规则名称: Peacock.list
+# 规则统计: 2
+
+DOMAIN-SUFFIX,peacocktv.com
+USER-AGENT,PeacockMobile*

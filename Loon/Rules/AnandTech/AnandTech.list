@@ -1,0 +1,4 @@
+# 规则名称: AnandTech.list
+# 规则统计: 1
+
+DOMAIN-SUFFIX,anandtech.com

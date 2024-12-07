@@ -1,0 +1,56 @@
+name: Fork Rules
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  ForkRules:
+    runs-on: ubuntu-latest
+    env:
+      TZ: 'Asia/Shanghai'
+
+    steps:
+    - name: Checkout target repository
+      uses: actions/checkout@v4
+
+    - name: Clone Egern Rewrite
+      run: |
+        mkdir -p Egern/Rewrite
+        curl -L -o Egern/Rewrite/AllInOne_Mock.sgmodule "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rewrite/Surge/AllInOne/AllInOne_Mock.sgmodule"
+        curl -L -o Egern/Rewrite/BlockHTTPDNS.sgmodule "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rewrite/Surge/Upgrade/Upgrade_Mock.sgmodule"
+        curl -L -o Egern/Rewrite/YouTubeADS.sgmodule "https://raw.githubusercontent.com/Asimplersir/X/refs/heads/X/Egern/YouTubeADS.sgmodule"
+
+    - name: Run AWK script
+      run: |
+        # 安装 AWK (如果需要)
+        sudo apt-get update && sudo apt-get install -y gawk 
+
+        # 切换到 .sgmodule 文件所在的目录
+        cd Egern/Rewrite
+
+        # 遍历所有 .sgmodule 文件
+        chmod +x ../../Conversion.awk  # 确保权限
+        for file in *.sgmodule; do
+          echo "Processing: $file"
+          ../../Conversion.awk < "$file" > "${file%.sgmodule}.yaml" 
+        done
+
+    - name: Add and Commit
+      run: |
+        if [[ -n $(git status -s) ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin X
+          git push origin X
+        else
+          echo "No changes to commit."
+        fi
+
+    - name: Cleanup Workflow
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 0
+        keep_minimum_runs: 2

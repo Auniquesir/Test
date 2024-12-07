@@ -1,0 +1,5 @@
+# 规则名称: Amazon_MITM.plugin
+# 规则统计: 1
+
+[MITM]
+hostname = www.amazon.com

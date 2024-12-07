@@ -1,0 +1,107 @@
+
+# Clash配置
+# ================
+
+p: &p {type: http, interval: 86400, health-check: {enable: true, url: http://one.one.one.one/generate_204, interval: 1800, timeout: 5000}}
+proxy-providers:
+  Subscribe: # 在此将 "http://机场订阅" 替换为你的机场订阅，推荐使用 base64 或者 node list
+    url: http://机场订阅
+    <<: *p
+    #override: # 修改节点前后缀时，需移除前方的 "#" 符号
+      #additional-prefix: "节点前缀"
+      #additional-suffix: "节点后缀"
+  #Subscribe2: {url: http://your-service-provider, <<: *p}
+  #Subscribe3: {url: http://your-service-provider, <<: *p}
+  #Subscribe4: {url: http://your-service-provider, <<: *p}
+
+mixed-port: 7893
+tcp-concurrent: true
+allow-lan: true
+ipv6: true
+log-level: info
+unified-delay: true
+global-client-fingerprint: chrome
+find-process-mode: strict
+
+geodata-mode: true
+geox-url:
+  geoip: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geosite: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+  mmdb: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country-lite.mmdb"
+  asn: "https://mirror.ghproxy.com/https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb"
+
+profile:
+  store-selected: true 
+  store-fake-ip: true  
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack: [any:53]
+        
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  listen: :1053
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter: ['*', '+.lan', '+.local', '+.direct', '+.msftconnecttest.com', '+.msftncsi.com']
+  nameserver: [223.5.5.5, 119.29.29.29]
+
+# 锚点参数
+pg: &pg {type: select, proxies: [手动切换, 香港节点, 美国节点, 狮城节点, 日本节点, 台湾节点, DIRECT]}
+url-test: &url-test {type: url-test, url: http://1.1.1.1/generate_204, interval: 300, tolerance: 0, include-all: true}
+select: &select {type: select, include-all: true}
+fallback: &fallback {type: fallback, url: http://1.1.1.1/generate_204, interval: 300, include-all: true}
+load-balance: &load-balance {type: load-balance, strategy: consistent-hashing, url: http://1.1.1.1/generate_204, interval: 300, include-all: true}
+c: &c {type: http, behavior: classical, format: text, interval: 86400}
+
+proxy-groups:
+
+  - {name: 手动切换, type: select, include-all: true, proxies: [香港节点, 美国节点, 狮城节点, 日本节点, 台湾节点, DIRECT], icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Mihomo .png}
+  - {name: 国外网站, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Global.png}
+  - {name: 国际媒体, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/YouTube.png}
+  - {name: 微软服务, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Microsoft_1.png}
+  - {name: 谷歌服务, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Google.png}
+  - {name: 电报消息, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Telegram.png}
+  - {name: 推特消息, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Twitter.png}
+  - {name: 智能应答, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/OpenAI.png}
+  - {name: 广告拦截, type: select, proxies: [REJECT, DIRECT], icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Adguard.png}
+  - {name: 兜底分流, <<: *pg, icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Final.png}
+  - {name: 香港节点, <<: *url-test, filter: "(?i)🇭🇰|香港|(\b(HK|Hong)\b)", icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Hong_Kong.png}
+  - {name: 美国节点, <<: *url-test, filter: "(?i)🇺🇸|美国|洛杉矶|圣何塞|(\b(US|United States)\b)", icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/United_States.png}
+  - {name: 狮城节点, <<: *url-test, filter: "(?i)🇸🇬|新加坡|狮|(\b(SG|Singapore)\b)", icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Singapore.png}
+  - {name: 日本节点, <<: *url-test, filter: "(?i)🇯🇵|日本|东京|(\b(JP|Japan)\b)", icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/Japan.png}
+  - {name: 台湾节点, <<: *url-test, filter: "(?i)🇨🇳|🇹🇼|台湾|(\b(TW|Tai|Taiwan)\b)", icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/App/China.png}
+
+rule-providers:
+  AdBlock: {<<: *c, path: ./rules/AD.list, url: https://github.com/Auniquesir/Tool/raw/X/AdRule/AdBlock.list}
+  YouTube: {<<: *c, path: ./rules/YouTube.list,  url: https://github.com/Auniquesir/Tool/raw/X/Clash/Rules/YouTube/YouTube.list}
+  Google: {<<: *c, path: ./rules/Google.list,  url: https://github.com/Auniquesir/Tool/raw/X/Clash/Rules/Google/Google.list}
+  Telegram: {<<: *c, path: ./rules/Telegram.list,  url: https://github.com/Auniquesir/Tool/raw/X/Clash/Rules/Telegram/Telegram.list}
+  Twitter: {<<: *c, path: ./rules/Twitter.list,  url: https://github.com/Auniquesir/Tool/raw/X/Clash/Rules/Twitter/Twitter.list}
+  AIGC: {<<: *c, path: ./rules/AI.list,  url: https://github.com/Auniquesir/Tool/raw/X/Clash/Rules/OpenAI/OpenAI.list}
+  Spotify: {<<: *c, path: ./rules/Spotify.list,  url: https://github.com/Auniquesir/Tool/raw/X/Clash/Rules/Spotify/Spotify.list}
+
+rules:
+  - RULE-SET,AdBlock,广告拦截
+  - RULE-SET,AIGC,智能应答
+  - RULE-SET,YouTube,谷歌服务
+  - RULE-SET,Google,谷歌服务
+  - RULE-SET,Telegram,电报消息
+  - RULE-SET,Twitter,推特消息
+  - RULE-SET,Spotify,国际媒体
+  - GEOIP,lan,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,兜底分流

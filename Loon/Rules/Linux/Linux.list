@@ -1,0 +1,4 @@
+# 规则名称: Linux.list
+# 规则统计: 1
+
+DOMAIN-SUFFIX,linux.org

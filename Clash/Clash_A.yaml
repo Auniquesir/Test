@@ -1,0 +1,312 @@
+# 配置名称: Clash 配置
+
+# [端口设置]
+port: 7890                # HTTP   端口
+socks-port: 7891          # SOCKS  端口
+redir-port: 7892          # REDIR  端口
+mixed-port: 7893          # MIXED  端口
+tproxy-port: 7894         # TPROXY 端口
+
+# [通用设置]
+tcp-concurrent: true      # TCP并发
+allow-lan: true           # 允许LAN
+log-level: info           # 日志级别
+mode: rule                # 运行模式
+unified-delay: true       # 统一延迟
+ipv6: true                # 启用IPv6
+find-process-mode: strict # 进程匹配模式
+external-controller: 0.0.0.0:9090
+global-client-fingerprint: chrome
+
+# [缓存设置]
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# [GEO设置]
+geodata-mode: true
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat"
+  geosite: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+  mmdb: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country-lite.mmdb"
+  asn: "https://mirror.ghproxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb"
+
+# [TUN设置]
+tun:
+  enable: true
+  stack: system
+  dns-hijack:
+    - any:53
+  auto-route: true
+  auto-detect-interface: true
+
+# [DNS设置]
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  default-nameserver:
+    - 223.5.5.5
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - 'localhost.ptlogin2.qq.com'
+  nameserver:
+    - https://dns.alidns.com/dns-query
+
+# [嗅探设置]
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80,8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443,8443]
+    QUIC:
+      ports: [443,8443]
+
+# [代理订阅]
+proxy-providers:
+  matrix:
+    type: http
+    url: "订阅链接" 
+    interval: 3600
+    path: ./Server/matrix.yaml
+    health-check:
+      enable: true
+      url: https://cp.cloudflare.com/generate_204
+      interval: 1800
+
+# [策略组]
+proxy-groups:
+  - name: "自行选择"
+    type: select
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Static.png
+    use:
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+  
+  - name: "微软服务"
+    type: select
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Microsoft.png
+    proxies: 
+      - DIRECT
+      - 自行选择
+      - 自动选择
+      - 香港节点
+      - 台湾节点
+      - 日本节点
+      - 韩国节点
+      - 狮城节点
+      - 美国节点
+
+  - name: "智能应答"
+    type: select
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Chatgpt0.png
+    proxies: 
+      - DIRECT
+      - 自行选择
+      - 自动选择
+      - 香港节点
+      - 台湾节点
+      - 日本节点
+      - 韩国节点
+      - 狮城节点
+      - 美国节点
+
+  - name: "国际媒体"
+    type: select
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Streaming.png
+    proxies: 
+      - DIRECT
+      - 自行选择
+      - 自动选择
+      - 香港节点
+      - 台湾节点
+      - 日本节点
+      - 韩国节点
+      - 狮城节点
+      - 美国节点
+
+  - name: "国际服务"
+    type: select
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Global.png
+    proxies: 
+      - DIRECT
+      - 自行选择
+      - 自动选择
+      - 香港节点
+      - 台湾节点
+      - 日本节点
+      - 韩国节点
+      - 狮城节点
+      - 美国节点
+
+  - name: "电报消息"
+    type: select
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Telegram.png
+    proxies: 
+      - DIRECT
+      - 自行选择
+      - 自动选择
+      - 香港节点
+      - 台湾节点
+      - 日本节点
+      - 韩国节点
+      - 狮城节点
+      - 美国节点
+
+  - name: "兜底服务"
+    type: select
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Final.png
+    proxies:
+      - DIRECT
+      - 自行选择
+      - 自动选择
+      - 香港节点
+      - 台湾节点
+      - 日本节点
+      - 韩国节点
+      - 狮城节点
+      - 美国节点
+
+  - name: "自动选择"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Available.png
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+
+  - name: "香港节点"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/HK.png
+    filter: "香港|港|HK|🇭🇰|(?i)Hong"
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+
+  - name: "台湾节点"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/TW.png
+    filter: "台湾|台|TW|🇹🇼|(?i)Taiwan"
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+
+  - name: "日本节点"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/JP.png
+    filter: "日本|日|JP|🇯🇵|(?i)Japan"
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+
+  - name: "韩国节点"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/KR.png
+    filter: "韩国|韩|KR|🇰🇷|(?i)Korea"
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+
+  - name: "狮城节点"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/SG.png
+    filter: "新加坡|狮|SG|🇸🇬|(?i)Singapore"
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+ 
+  - name: "美国节点"
+    type: url-test
+    lazy: true
+    icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/US.png
+    filter: "美国|美|US|🇺🇸|(?i)States"
+    use: 
+      - matrix
+    url: "https://cp.cloudflare.com/generate_204"
+    interval: 1800
+
+# [远程规则]
+rule-providers:
+  规则修正:
+    behavior: classical
+    interval: 86400
+    type: http
+    path: ./Ruleset/Direct.yaml
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Direct/Direct.yaml
+
+  广告拦截:
+    behavior: domain
+    interval: 86400
+    type: http
+    path: ./Ruleset/AntiAd.yaml
+    url: https://github.com/Auniquesir/Tool/raw/X/AdRule/AntiAd.yaml
+
+  微软服务:
+    behavior: classical
+    interval: 86400
+    type: http
+    path: ./Ruleset/Microsoft.yaml
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Microsoft/Microsoft.yaml
+
+  智能应答:
+    behavior: classical
+    interval: 86400
+    type: http
+    path: ./Ruleset/OpenAI.yaml
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/OpenAI/OpenAI.yaml
+
+  国际媒体:
+    behavior: classical
+    interval: 86400
+    type: http
+    path: ./Ruleset/GlobalMedia_Classical.yaml
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/GlobalMedia/GlobalMedia_Classical.yaml
+
+  国际服务:
+    behavior: classical
+    interval: 86400
+    type: http
+    path: ./Ruleset/Global_Classical.yaml
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Global/Global_Classical.yaml
+
+  局域网络:
+    behavior: classical
+    interval: 86400
+    type: http
+    path: ./Ruleset/Lan.yaml
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Lan/Lan.yaml
+
+# [本地规则]
+rules:
+  - RULE-SET,规则修正,DIRECT
+  - RULE-SET,广告拦截,REJECT
+  - RULE-SET,微软服务,微软服务
+  - RULE-SET,智能应答,智能应答
+  - RULE-SET,国际媒体,国际媒体
+  - RULE-SET,国际服务,国际服务
+  - RULE-SET,局域网络,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,兜底服务

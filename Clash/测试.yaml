@@ -1,0 +1,287 @@
+rule-providers:
+  规则修正:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Direct/Direct_No_Resolve.yaml
+    path: ./ruleset/Direct_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  广告拦截:
+    url: https://github.com/Auniquesir/Tool/raw/X/AdRule/AntiAd.yaml
+    path: ./ruleset/AntiAd.yaml
+    behavior: domain
+    interval: 86400
+    format: yaml
+    type: http
+  电报消息:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Telegram/Telegram_No_Resolve.yaml
+    path: ./ruleset/Telegram_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  谷歌服务:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Google/Google_No_Resolve.yaml
+    path: ./ruleset/Google_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  国际媒体:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/GlobalMedia/GlobalMedia_Classical_No_Resolve.yaml
+    path: ./ruleset/GlobalMedia_Classical_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  国际服务:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Global/Global_Classical_No_Resolve.yaml
+    path: ./ruleset/Global_Classical_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  微软服务:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Microsoft/Microsoft_No_Resolve.yaml
+    path: ./ruleset/Microsoft_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  bing:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Bing/Bing_No_Resolve.yaml
+    path: ./ruleset/Bing_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  copilot:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Copilot/Copilot_No_Resolve.yaml
+    path: ./ruleset/copilot_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  claude:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Claude/Claude_No_Resolve.yaml
+    path: ./ruleset/claude_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  bard:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/BardAI/BardAI_No_Resolve.yaml
+    path: ./ruleset/bard_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  openai:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/OpenAI/OpenAI_No_Resolve.yaml
+    path: ./ruleset/openai_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+  steam:
+    url: https://raw.githubusercontent.com/Auniquesir/Tool/X/Clash/Rules/Steam/Steam_No_Resolve.yaml
+    path: ./ruleset/steam_No_Resolve.yaml
+    behavior: classical
+    interval: 86400
+    format: yaml
+    type: http
+
+proxy-groups:
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Static.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    name: 自行选择
+    type: select
+    proxies:
+      - 香港策略
+      - 台湾策略
+      - 狮城策略 
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Microsoft.png
+    name: 微软服务
+    type: select
+    proxies:
+      - DIRECT
+      - 香港策略
+      - 台湾策略
+      - 狮城策略 
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Chatgpt0.png
+    name: 智能应答
+    type: select
+    proxies:
+      - 台湾策略
+      - 狮城策略
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Telegram.png
+    name: 电报消息
+    type: select
+    proxies:
+      - 香港策略
+      - 台湾策略
+      - 狮城策略
+      - 日本策略 
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Google.png
+    name: 谷歌服务
+    type: select
+    proxies:
+      - 香港策略
+      - 台湾策略
+      - 狮城策略 
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Streaming.png
+    name: 国际媒体
+    type: select
+    proxies:
+      - 香港策略
+      - 台湾策略
+      - 狮城策略 
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Global.png
+    name: 国际服务
+    type: select
+    proxies:
+      - 香港策略
+      - 台湾策略
+      - 狮城策略 
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Final.png
+    name: 兜底服务
+    type: select
+    proxies:
+      - 自动选择
+      - 香港策略
+      - 台湾策略
+      - 狮城策略
+      - 日本策略
+      - 美国策略
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/Urltest.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    name: 自动选择
+    type: fallback
+    interval: 300
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/HK.png
+    name: 香港策略
+    type: select
+    proxies:
+      - 香港手动
+      - 香港自动
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/TW.png
+    name: 台湾策略
+    type: select
+    proxies:
+      - 台湾手动
+      - 台湾自动
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/SG.png
+    name: 狮城策略
+    type: select
+    proxies:
+      - 狮城手动
+      - 狮城自动 
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/JP.png
+    name: 日本策略
+    type: select
+    proxies: 
+      - 日本手动
+      - 日本自动
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/US.png
+    name: 美国策略
+    type: select
+    proxies:
+      - 美国手动
+      - 美国自动
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/HK.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)香港|港|HK|🇭🇰|Hong Kong
+    name: 香港手动 
+    type: select
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/TW.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)台湾|台|TW|🇹🇼|Taiwan
+    name: 台湾手动
+    type: select
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/SG.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)新加坡|狮|SG|🇸🇬|Singapore
+    name: 狮城手动 
+    type: select
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/JP.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)日本|日|JP|🇯🇵|Japan
+    name: 日本手动 
+    type: select
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/US.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)美国|美|US|🇺🇸|States
+    name: 美国手动 
+    type: select
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/HK.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)香港|港|HK|🇭🇰|Hong Kong
+    name: 香港自动
+    type: url-test
+    interval: 300
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/TW.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)台湾|台|TW|🇹🇼|Taiwan
+    name: 台湾自动
+    type: url-test
+    interval: 300
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/SG.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)新加坡|狮|SG|🇸🇬|Singapore
+    name: 狮城自动
+    type: url-test
+    interval: 300
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/JP.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)日本|日|JP|🇯🇵|Japan
+    name: 日本自动 
+    type: url-test
+    interval: 300
+  - icon: https://raw.githubusercontent.com/Auniquesir/Box/X/icon/color/US.png
+    include-all: true
+    exclude-filter: (?i)GB|Traffic|Expire|Premium|频道|订阅|ISP|流量|到期|重置
+    filter: (?i)美国|美|US|🇺🇸|States
+    name: 美国自动
+    type: url-test
+    interval: 300
+
+rules:
+  - "RULE-SET,规则修正,DIRECT"
+  - "RULE-SET,广告拦截,REJECT"
+  - "RULE-SET,微软服务,微软服务"
+  - "RULE-SET,国际媒体,国际媒体"
+  - "RULE-SET,国际服务,国际服务"
+  - "RULE-SET,bing,智能应答"
+  - "RULE-SET,copilot,智能应答"
+  - "RULE-SET,bard,智能应答"
+  - "RULE-SET,openai,智能应答"
+  - "RULE-SET,claude,智能应答"
+  - "RULE-SET,steam,自行选择"
+  - "RULE-SET,电报消息,电报消息"
+  - "RULE-SET,谷歌服务,谷歌服务"
+  - "GEOIP,CN,DIRECT"
+  - "MATCH,兜底服务"
