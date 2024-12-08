@@ -25,24 +25,37 @@ jobs:
         # 定义递归函数获取 .list 文件的下载链接
         fetch_files() {
           local path=$1
+          local page=1
+          local per_page=100  # 每页获取的最大文件数量，GitHub API 默认最大为 100
           
-          # 获取当前目录下的文件和子目录列表
-          response=$(curl -s "https://api.github.com/repos/$REPO/contents/$path?ref=$BRANCH")
-          
-          # 循环处理目录和文件
-          for item in $(echo "$response" | jq -r '.[] | @base64'); do
-            _jq() {
-              echo ${item} | base64 --decode | jq -r ${1}
-            }
+          # 循环处理分页，直到获取所有文件
+          while true; do
+            # 获取当前目录下的文件和子目录列表
+            response=$(curl -s "https://api.github.com/repos/$REPO/contents/$path?ref=$BRANCH&per_page=$per_page&page=$page")
             
-            # 如果是文件且以 .list 结尾，输出下载链接
-            if [[ $(_jq '.type') == "file" && $(_jq '.name') == *.list ]]; then
-              echo $(_jq '.download_url') >> QuantumultX_files/list_files_links.txt
-            fi
+            # 循环处理目录和文件
+            for item in $(echo "$response" | jq -r '.[] | @base64'); do
+              _jq() {
+                echo ${item} | base64 --decode | jq -r ${1}
+              }
+              
+              # 如果是文件且以 .list 结尾，输出下载链接
+              if [[ $(_jq '.type') == "file" && $(_jq '.name') == *.list ]]; then
+                echo $(_jq '.download_url') >> QuantumultX_files/list_files_links.txt
+              fi
+              
+              # 如果是目录，递归调用
+              if [[ $(_jq '.type') == "dir" ]]; then
+                fetch_files $(_jq '.path')
+              fi
+            done
             
-            # 如果是目录，递归调用
-            if [[ $(_jq '.type') == "dir" ]]; then
-              fetch_files $(_jq '.path')
+            # 检查是否还有更多页
+            # 如果 GitHub 返回的响应包含 Link 头部中的 `rel="next"`，说明有下一页
+            if [[ $(curl -s -I "https://api.github.com/repos/$REPO/contents/$path?ref=$BRANCH&per_page=$per_page&page=$((page + 1))" | grep -i 'rel="next"') ]]; then
+              page=$((page + 1))
+            else
+              break
             fi
           done
         }
