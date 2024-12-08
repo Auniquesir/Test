@@ -27,6 +27,7 @@ def fetch_files(url):
 
         # 提取 .list 文件的下载链接
         for item in response_body:
+            print(f"Processing item: {json.dumps(item, indent=2)}")  # 打印每个文件或文件夹的详细信息
             if item["type"] == "file" and item["name"].endswith(".list"):
                 download_links.append(item["download_url"])
                 print(f"Found .list file: {item['download_url']}")
