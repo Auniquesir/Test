@@ -30,23 +30,32 @@ jobs:
           local url=$1
           # 获取目录或文件列表
           while : ; do
-            # 请求当前 URL 并获取分页数据
-            response=$(curl -s -H "Accept: application/vnd.github.v3+json" "$url")
-            
+            # 请求当前 URL 并获取分页数据，同时输出调试信息
+            response=$(curl -s -w "%{http_code}" -H "Accept: application/vnd.github.v3+json" "$url")
+            http_code=$(echo "$response" | tail -n1)  # 获取 HTTP 状态码
+            response_body=$(echo "$response" | head -n -1)  # 获取除状态码外的响应内容
+
             # 输出调试信息，检查 API 返回内容
             echo "Processing URL: $url"
-            echo "API Response: $response"  # 打印返回的响应内容
+            echo "HTTP Status Code: $http_code"
+            echo "API Response Body: $response_body"  # 打印返回的响应内容
+
+            if [[ "$http_code" != "200" ]]; then
+              echo "Error: Received HTTP $http_code from GitHub API"
+              exit 1
+            fi
 
             # 确保返回的数据是有效的 JSON 格式
-            if echo "$response" | jq empty; then
-              echo "$response" | jq -r '.[] | .name'  # 打印所有文件/目录的名称
+            if echo "$response_body" | jq empty; then
+              # 解析文件/目录信息
+              echo "$response_body" | jq -r '.[] | .name'  # 打印所有文件/目录的名称
             else
               echo "Invalid JSON response from GitHub API"
               exit 1
             fi
 
             # 从响应中提取下载链接（文件）或递归目录
-            echo "$response" | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
+            echo "$response_body" | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
               if [[ "$file_url" == *".list" ]]; then
                 # 如果是 .list 文件，则提取下载链接并保存
                 echo "Found .list file: $file_url"
@@ -59,7 +68,7 @@ jobs:
             done
 
             # 检查是否有分页（Link header）
-            next_page_url=$(echo "$response" | grep -i 'rel="next"' | sed 's/.*<\(.*\)>; rel="next"/\1/')
+            next_page_url=$(echo "$response_body" | grep -i 'rel="next"' | sed 's/.*<\(.*\)>; rel="next"/\1/')
             if [ -z "$next_page_url" ]; then
               break
             else
