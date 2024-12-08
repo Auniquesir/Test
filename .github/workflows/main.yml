@@ -30,8 +30,8 @@ jobs:
           local url=$1
           # 获取目录或文件列表
           while : ; do
-            # 请求当前 URL 并获取分页数据
-            response=$(curl -s -H "Accept: application/vnd.github.v3+json" "$url")
+            # 请求当前 URL 并获取分页数据（指定每页最多返回 100 条）
+            response=$(curl -s -H "Accept: application/vnd.github.v3+json" "$url?per_page=100")
             
             # 从响应中提取下载链接（文件）或递归目录
             echo "$response" | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
