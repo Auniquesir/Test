@@ -22,10 +22,18 @@ jobs:
         # 输出文件路径
         OUTPUT_FILE="quantumultx_list_links.txt"
 
-        # 获取文件列表并提取 .list 文件的下载链接
-        curl -s $GITHUB_API_URL | jq -r '.[] | select(.name | endswith(".list")) | .download_url' > $OUTPUT_FILE
+        # 调试：查看 API 返回的完整数据
+        echo "Fetching data from GitHub API..."
+        curl -s $GITHUB_API_URL > response.json
+        echo "API Response:"
+        cat response.json
 
-        # 打印文件链接
+        # 过滤出 .list 文件的下载链接
+        echo "Filtering .list file download links..."
+        jq -r '.[] | select(.name | endswith(".list")) | .download_url' response.json > $OUTPUT_FILE
+
+        # 打印提取的链接
+        echo "Extracted download links:"
         cat $OUTPUT_FILE
 
     # 添加并提交更改
