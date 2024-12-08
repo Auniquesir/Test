@@ -46,8 +46,12 @@ jobs:
 
     - name: Save Output
       run: |
-        # 保存文件到项目根目录
-        cp download_links.txt ./download_links.txt
+        # 跳过复制操作，如果文件已存在
+        if [ ! -f "./download_links.txt" ]; then
+          cp download_links.txt ./download_links.txt
+        else
+          echo "File download_links.txt already exists, skipping copy."
+        fi
 
     - name: Add and Commit
       run: |
