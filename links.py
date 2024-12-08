@@ -7,6 +7,9 @@ GITHUB_API_URL = "https://api.github.com/repos/blackmatrix7/ios_rule_script/cont
 # 输出文件路径
 OUTPUT_FILE = "quantumultx_list_links.txt"
 
+# 创建空的输出文件
+open(OUTPUT_FILE, "w").close()
+
 # 函数：获取文件和文件夹，处理分页
 def fetch_files(url):
     download_links = []
@@ -45,9 +48,6 @@ def fetch_files(url):
 
 # 主函数
 def main():
-    # 清空输出文件
-    open(OUTPUT_FILE, "w").close()
-
     # 获取所有 .list 文件的下载链接
     download_links = fetch_files(GITHUB_API_URL)
 
