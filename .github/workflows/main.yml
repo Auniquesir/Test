@@ -16,17 +16,30 @@ jobs:
     - name: Create a folder to store the list file links
       run: mkdir -p QuantumultX_files
 
-    - name: Download .list file links
+    - name: Debug API response
       run: |
-        # GitHub API 地址，获取 QuantumultX 目录下的文件列表
         REPO="blackmatrix7/ios_rule_script"
         BRANCH="master"
         DIR="rule/QuantumultX"
         
+        # 获取文件列表并打印出来检查
+        curl -s "https://api.github.com/repos/$REPO/contents/$DIR?ref=$BRANCH" > QuantumultX_files/api_response.json
+        cat QuantumultX_files/api_response.json  # 打印 API 返回的完整响应内容
+
+    - name: Download .list file links
+      run: |
+        REPO="blackmatrix7/ios_rule_script"
+        BRANCH="master"
+        DIR="rule/QuantumultX"
+
         # 获取所有文件的 URL（仅 .list 文件）
         curl -s "https://api.github.com/repos/$REPO/contents/$DIR?ref=$BRANCH" \
           | jq -r '.[] | select(.name | endswith(".list")) | .download_url' \
           > QuantumultX_files/list_files_links.txt  # 将下载链接保存到文件
+
+    - name: Check the list file links
+      run: |
+        cat QuantumultX_files/list_files_links.txt  # 打印出文件链接，查看是否获取到正确内容
 
     - name: Add and Commit
       run: |
