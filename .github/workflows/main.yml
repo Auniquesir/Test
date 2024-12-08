@@ -33,7 +33,7 @@ jobs:
     - name: Save Output
       run: |
         # 将文件保存到项目根目录
-        mv download_links.txt ./download_links.txt
+        mv download_links.txt ./new_download_links.txt
 
     # 添加并提交更改
     - name: Add and Commit
