@@ -23,7 +23,7 @@ jobs:
         echo "Fetching page content..."
         curl -sL https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX > page.html
 
-        # 打印页面内容进行调试
+        # 打印获取到的 HTML 内容
         echo "Page content saved in page.html:"
         cat page.html
 
@@ -32,25 +32,32 @@ jobs:
         grep -o 'href="[^"]*\.list"' page.html | \
         sed -e 's/href="//' -e 's/"//' > links.txt
 
-        # 打印提取的链接进行调试
-        echo "Extracted links:"
+        # 打印提取的链接
+        echo "Extracted .list links:"
         cat links.txt
 
         # 生成可以直接下载的链接
         echo "Generating full download links..."
         awk '{print "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/"$0}' links.txt > download_links.txt
 
-        # 打印最终的下载链接
+        # 打印生成的下载链接
         echo "Download links generated:"
         cat download_links.txt
 
     - name: Save Output
       run: |
-        # 跳过复制操作，如果文件已存在
+        # 确保文件存在并输出调试信息
         if [ -f "./download_links.txt" ]; then
-          echo "File download_links.txt already exists, skipping copy."
+          echo "Download links file created successfully."
         else
+          echo "Download links file not created."
+        fi
+
+        # 处理生成的下载链接文件
+        if [ -f "download_links.txt" ]; then
           cp download_links.txt ./download_links.txt
+        else
+          echo "No download links to save."
         fi
 
     - name: Add and Commit
