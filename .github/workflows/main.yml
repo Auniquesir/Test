@@ -18,12 +18,12 @@ jobs:
         echo "Cloning repository..."
         git clone https://github.com/blackmatrix7/ios_rule_script.git
         echo "Repository cloned."
-
+    
     - name: Check current directory
       run: |
         echo "Current working directory:"
         pwd
-        echo "Listing contents of the repository:"
+        echo "Listing contents of the current directory:"
         ls -R
 
     - name: List contents of QuantumultX directory
@@ -84,3 +84,8 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
+
+    - name: Clean up cloned repository
+      run: |
+        echo "Removing ios_rule_script folder..."
+        rm -rf ios_rule_script
