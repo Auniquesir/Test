@@ -22,7 +22,7 @@ jobs:
 
     - name: Run Python script
       run: |
-        python fetch_links.py
+        python links.py
 
     # 添加并提交更改
     - name: Add and Commit
