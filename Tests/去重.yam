@@ -1,0 +1,60 @@
+
+name: Fork Rules
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ExtractLinks:
+    runs-on: ubuntu-24.04
+    env:
+      TZ: 'Asia/Shanghai'
+
+    steps:
+    - name: Checkout target repository
+      uses: actions/checkout@v4.2.2
+
+    - name: Download links_from_readme.txt
+      run: |
+        curl -L https://raw.githubusercontent.com/Auniquesir/Test/X/QuantumultX_files/links_from_readme.txt -o links_from_readme.txt
+        # 检查下载文件是否存在
+        if [ ! -f links_from_readme.txt ]; then
+          echo "Failed to download the file"
+          exit 1
+        fi
+
+    - name: Remove duplicate links
+      run: |
+        sort links_from_readme.txt | uniq > unique_links.txt
+
+    - name: Commit unique links file
+      run: |
+        # 确保工作区干净
+        git add unique_links.txt
+        if [[ -n $(git status -s) ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Add unique links file $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
+        else
+          echo "No changes to commit."
+        fi
+
+    - name: Ensure working directory is clean and pull latest changes
+      run: |
+        # 暂存未提交的更改（如果有的话）
+        if [[ -n $(git status -s) ]]; then
+          git stash
+        fi
+        git pull --rebase origin X
+        # 如果有暂存的更改，恢复它们
+        if [[ -n $(git stash list) ]]; then
+          git stash pop
+        fi
+        git push origin X
+
+    # 清理工作流
+    - name: Cleanup Workflow
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 0
+        keep_minimum_runs: 2
