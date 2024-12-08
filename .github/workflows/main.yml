@@ -46,24 +46,16 @@ jobs:
             fi
 
             # 确保返回的数据是有效的 JSON 格式
-            if echo "$response_body" | jq empty; then
-              # 解析文件/目录信息
-              echo "$response_body" | jq -r '.[] | .name'  # 打印所有文件/目录的名称
-            else
+            if ! echo "$response_body" | jq empty; then
               echo "Invalid JSON response from GitHub API"
               exit 1
             fi
 
-            # 从响应中提取下载链接（文件）或递归目录
-            echo "$response_body" | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
-              if [[ "$file_url" == *".list" ]]; then
-                # 如果是 .list 文件，则提取下载链接并保存
+            # 检查是否存在需要提取的 .list 文件下载链接
+            echo "$response_body" | jq -r '.[] | select(.type == "file" and .name | endswith(".list")) | .download_url' | while read -r file_url; do
+              if [[ -n "$file_url" ]]; then
                 echo "Found .list file: $file_url"
                 echo $file_url >> $OUTPUT_FILE
-              else
-                # 如果是目录，递归调用 fetch_files
-                echo "Found directory, recursing: $file_url"
-                fetch_files $file_url
               fi
             done
 
