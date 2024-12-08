@@ -1,10 +1,10 @@
-name: Fork Rules
+name: Extract Links from README
 
 on:
   workflow_dispatch:
 
 jobs:
-  ForkRules:
+  ExtractLinks:
     runs-on: ubuntu-24.04
     env:
       TZ: 'Asia/Shanghai'
@@ -13,17 +13,17 @@ jobs:
     - name: Checkout target repository
       uses: actions/checkout@v4.2.2
 
-    - name: Create a folder to store the list file links
+    - name: Create folder for extracted links
       run: mkdir -p QuantumultX_files
 
-    - name: Recursive fetch of .list file links
+    - name: Recursive fetch of README.md files and extract links
       run: |
         REPO="blackmatrix7/ios_rule_script"
         BRANCH="master"
         DIR="rule/QuantumultX"
         
-        # 定义递归函数获取 .list 文件的下载链接
-        fetch_files() {
+        # 定义递归函数获取 README.md 文件中的下载链接
+        fetch_readme_links() {
           local path=$1
           local page=1
           local per_page=100  # 每页获取的最大文件数量，GitHub API 默认最大为 100
@@ -39,19 +39,22 @@ jobs:
                 echo ${item} | base64 --decode | jq -r ${1}
               }
               
-              # 如果是文件且以 .list 结尾，输出下载链接
-              if [[ $(_jq '.type') == "file" && $(_jq '.name') == *.list ]]; then
-                echo $(_jq '.download_url') >> QuantumultX_files/list_files_links.txt
+              # 如果是 README.md 文件，获取其内容并提取链接
+              if [[ $(_jq '.type') == "file" && $(_jq '.name') == "README.md" ]]; then
+                readme_url=$(_jq '.download_url')
+                readme_content=$(curl -s "$readme_url")
+
+                # 使用 grep 提取包含特定下载链接的行，并保存到文件
+                echo "$readme_content" | grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' >> QuantumultX_files/links_from_readme.txt
               fi
               
               # 如果是目录，递归调用
               if [[ $(_jq '.type') == "dir" ]]; then
-                fetch_files $(_jq '.path')
+                fetch_readme_links $(_jq '.path')
               fi
             done
             
             # 检查是否还有更多页
-            # 如果 GitHub 返回的响应包含 Link 头部中的 `rel="next"`，说明有下一页
             if [[ $(curl -s -I "https://api.github.com/repos/$REPO/contents/$path?ref=$BRANCH&per_page=$per_page&page=$((page + 1))" | grep -i 'rel="next"') ]]; then
               page=$((page + 1))
             else
@@ -60,14 +63,14 @@ jobs:
           done
         }
 
-        # 获取所有的 .list 文件下载链接并保存到文件
-        fetch_files $DIR
+        # 获取所有 README.md 文件中的下载链接并保存到文件
+        fetch_readme_links $DIR
 
-    - name: Upload the list file links as artifact
+    - name: Upload extracted links as artifact
       uses: actions/upload-artifact@v3
       with:
-        name: quantumultx-list-files
-        path: QuantumultX_files/list_files_links.txt
+        name: readme-links
+        path: QuantumultX_files/links_from_readme.txt
 
     - name: Add and Commit
       run: |
