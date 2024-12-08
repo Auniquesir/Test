@@ -31,22 +31,36 @@ jobs:
         # 查找所有 .list 文件并提取链接
         for file in $(find ios_rule_script/rule/QuantumultX -name "*.list"); do
           echo "Processing file: $file"  # 输出当前处理的文件
+
+          # 检查文件是否存在
+          if [ ! -f "$file" ]; then
+            echo "File not found: $file"
+            continue
+          fi
+
           # 使用 grep 提取文件中的 .list 文件下载链接，并追加到 links.txt 中
-          grep -o 'https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX[^"]*\.list' "$file" >> $OUTPUT_FILE
+          links=$(grep -o 'https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX[^"]*\.list' "$file")
+          
+          # 检查是否找到链接
+          if [ -z "$links" ]; then
+            echo "No links found in $file"
+          else
+            echo "$links" >> $OUTPUT_FILE  # 如果找到链接，则追加到 links.txt
+          fi
         done
 
-    # 步骤 4: 显示提取的链接
-    - name: Show extracted links
-      run: cat links.txt  # 输出 links.txt 中的内容，显示提取的链接
+        # 输出链接内容，供调试
+        echo "Extracted links:"
+        cat $OUTPUT_FILE
 
-    # 步骤 5: 将 links.txt 作为工作流产物上传
+    # 步骤 4: 将 links.txt 作为工作流产物上传
     - name: Upload links.txt as artifact
       uses: actions/upload-artifact@v3  # 上传 links.txt 文件作为工作流产物
       with:
         name: links-file  # 设置上传的产物名称为 links-file
         path: links.txt  # 上传 links.txt 文件
 
-    # 步骤 6: 添加并提交更改
+    # 步骤 5: 添加并提交更改
     - name: Add and Commit
       run: |
         # 如果有更改，提交更改
