@@ -1,57 +1,50 @@
-name: Get QuantumultX List Files
+name: Fork Rules
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  fetch-quantumultx-links:
-    runs-on: ubuntu-latest
+  ForkRules:
+    runs-on: ubuntu-24.04
+    env:
+      TZ: 'Asia/Shanghai'
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout target repository
+      uses: actions/checkout@v4.2.2
 
-      - name: Fetch .list file links
-        run: |
-          # GitHub API URL
-          GITHUB_API_URL="https://api.github.com/repos/blackmatrix7/ios_rule_script/contents/rule/QuantumultX"
+    # 拉取 .list 文件下载链接并保存到 txt 文件
+    - name: Fetch .list file links
+      run: |
+        # GitHub API URL
+        GITHUB_API_URL="https://api.github.com/repos/blackmatrix7/ios_rule_script/contents/rule/QuantumultX"
 
-          # 输出文件
-          OUTPUT_FILE="quantumultx_list_links.txt"
+        # 输出文件路径
+        OUTPUT_FILE="quantumultx_list_links.txt"
 
-          # 获取文件列表并提取 .list 文件的下载链接
-          curl -s $GITHUB_API_URL | jq -r '.[] | select(.name | endswith(".list")) | .download_url' > $OUTPUT_FILE
+        # 获取文件列表并提取 .list 文件的下载链接
+        curl -s $GITHUB_API_URL | jq -r '.[] | select(.name | endswith(".list")) | .download_url' > $OUTPUT_FILE
 
-          # 打印文件链接
-          cat $OUTPUT_FILE
+        # 打印文件链接
+        cat $OUTPUT_FILE
 
-      - name: Upload the links file as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: quantumultx-list-links
-          path: quantumultx_list_links.txt
+    # 添加并提交更改
+    - name: Add and Commit
+      run: |
+        if [[ -n $(git status -s) ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin X
+          git push origin X
+        else
+          echo "No changes to commit."
+        fi
 
-
-
-      - name: Add and Commit
-        run: |
-          # 检查是否有更改
-          if [[ -n $(git status -s) ]]; then
-            echo "Changes detected, committing to the repository..."
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git add -A
-            git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
-            git pull --rebase origin X
-            git push origin X
-          else
-            echo "No changes to commit."
-          fi
-
-      - name: Cleanup Workflow
-        uses: Mattraks/delete-workflow-runs@main
-        with:
-          retain_days: 0
-          keep_minimum_runs: 2
+    # 清理工作流
+    - name: Cleanup Workflow
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 0
+        keep_minimum_runs: 2
