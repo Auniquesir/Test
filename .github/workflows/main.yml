@@ -14,29 +14,36 @@ jobs:
       uses: actions/checkout@v4.2.2
 
     # 拉取 .list 文件下载链接并保存到 txt 文件
-    - name: Fetch .list file links
+    - name: Fetch .list file links recursively
       run: |
-        # GitHub API URL
+        # GitHub API URL for the main directory
         GITHUB_API_URL="https://api.github.com/repos/blackmatrix7/ios_rule_script/contents/rule/QuantumultX"
-
+        
         # 输出文件路径
         OUTPUT_FILE="quantumultx_list_links.txt"
 
-        # 调试：查看 API 返回的完整数据
-        echo "Fetching data from GitHub API..."
-        curl -s $GITHUB_API_URL > response.json
-        echo "API Response (First 500 chars):"
-        head -n 20 response.json  # 输出前 20 行，方便调试
+        # 创建空的输出文件
+        echo "" > $OUTPUT_FILE
 
-        # 检查返回的数据是否包含 .list 文件
-        echo "Checking if .list files are present..."
-        jq '.[] | .name' response.json
+        # 函数：递归获取文件和文件夹
+        fetch_files() {
+          local url=$1
+          # 获取目录或文件列表
+          curl -s $url | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
+            if [[ "$file_url" == *".list" ]]; then
+              # 如果是 .list 文件，则提取下载链接并保存
+              echo $file_url >> $OUTPUT_FILE
+            else
+              # 如果是目录，递归调用 fetch_files
+              fetch_files $file_url
+            fi
+          done
+        }
 
-        # 过滤出 .list 文件的下载链接
-        echo "Filtering .list file download links..."
-        jq -r '.[] | select(.name | endswith(".list")) | .download_url' response.json > $OUTPUT_FILE
+        # 调用递归函数从主目录开始获取文件
+        fetch_files $GITHUB_API_URL
 
-        # 打印提取的链接
+        # 打印提取的下载链接
         echo "Extracted download links:"
         cat $OUTPUT_FILE
 
