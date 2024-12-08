@@ -13,131 +13,27 @@ jobs:
     - name: Checkout target repository
       uses: actions/checkout@v4.2.2
 
-    # 拉取文件
-    - name: Clone Rules
+    - name: Install Dependencies
+      run: sudo apt-get update && sudo apt-get install -y curl jq
+
+    - name: Fetch .list Download Links
       run: |
-        # 克隆规则仓库
-        git clone https://github.com/blackmatrix7/ios_rule_script.git tmpfile
-        
-        # 定义目标目录和相应的规则路径
-        declare -A rules=(
-          ["Loon/Rule"]="QuantumultX"
-        )
-        
-        # 拷贝对应的规则文件
-        for dir in "${!rules[@]}"; do
-          mkdir -p "$dir"
-          if [ -d "tmpfile/rule/${rules[$dir]}" ]; then
-            rsync -a tmpfile/rule/${rules[$dir]}/ "$dir/"
-          fi
-        done
-        
-        # 清理临时目录
-        rm -rf tmpfile
-          
-    ###### Loon
-    # 适配 Loon 规则
-    - name: Edit Loon Rule
+        # 获取页面HTML内容
+        curl -sL https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX > page.html
+
+        # 提取 .list 文件相对路径
+        grep -oP 'href=".*?\.list"' page.html |
+        sed -e 's/href="//' -e 's/"//' |
+        awk '{print "https://raw.githubusercontent.com"$0}' |
+        sed 's/github.com/blackmatrix7\/ios_rule_script\/master/' > download_links.txt
+
+        # 查看结果
+        cat download_links.txt
+
+    - name: Save Output
       run: |
-        cd Loon/Rule || exit 1
-        find . -type f -name '*.list' -print0 | while IFS= read -r -d $'\0' file; do
-          echo "Processing file: $file"
-          if [ -f "$file" ]; then
-            # 适配
-            sed -i -e 's/, /,/g' \
-                   -e 's/;/# /g' \
-                   -e 's/host,/HOST,/g' \
-                   -e 's/host-/HOST-/g' \
-                   -e 's/-suffix/-SUFFIX/g' \
-                   -e 's/-keyword/-KEYWORD/g' \
-                   -e 's/ip-cidr/IP-CIDR/g' \
-                   -e 's/geoip/GEOIP/g' \
-                   -e 's/HOST,/DOMAIN,/g' \
-                   -e 's/HOST-/DOMAIN-/g' \
-                   -e 's/IP6-CIDR,/IP-CIDR6,/g' \
-                   -e 's/,extended-matching$//g' \
-                   -e 's/,REJECT$//g' \
-                   -e 's/,DIRECT$//g' \
-                   -e 's/,reject$//g' \
-                   -e 's/,direct$//g' \
-                   -e '/\(USER-AGENT\|OR\|AND\|NOT\),/ s/^/#/' \
-                   -e 's| \{1,\}//.*$||' \
-                   -e 's/,\*/,.*/g' \
-                   -e '/^\s*[#;]/d' \
-                   -e '/^$/d' \
-                   "$file" || { echo "Failed processing $file"; exit 1; }
-          else
-            echo "$file not found."
-          fi
-        done
-
-    - name: Edit Loon
-      run: |
-        cd Loon/Rule || exit 1
-        find . -type f -name '*.list' -print0 | while IFS= read -r -d $'\0' file; do
-          echo "Processing file: $file"
-          if [ -f "$file" ]; then
-            # 获取当前文件名（不含扩展名）
-            file_names=$(basename "$file" .list)
-
-            # 匹配并删除文件名部分
-            awk -v fname="$file_names" '{sub("," fname "$", "")}1' "$file" > tmpfile && mv tmpfile "$file"
-
-            # 添加规则名称和规则统计
-            line_count=$(wc -l < "$file")
-            awk -v fname="$file_names" 'NR==1 {print "# 规则名称: " fname} {print}' "$file" > tmpfile && mv tmpfile "$file"
-            awk -v count="$line_count" 'NR==2 {print "# 规则统计: " count} {print}' "$file" > tmpfile && mv tmpfile "$file"
-
-            # 添加一个空行
-            sed -i '2a\\' "$file"
-          else
-            echo "$file not found."
-          fi
-        done
-
-    # 添加IP规则检查：如果为IP规则且不包含no-resolve，则添加no-resolve
-    - name: Add no-resolve to IP rules
-      run: |
-        cd Loon/Rule || exit 1
-        find . -type f -name '*.list' -print0 | while IFS= read -r -d $'\0' file; do
-          echo "Processing file: $file"
-          if [ -f "$file" ]; then
-            # 如果行以IP规则开头且没有no-resolve，添加no-resolve
-            awk '/^IP-/ && !/,no-resolve/ {print $0",no-resolve"; next} {print}' "$file" > tmpfile
-            mv tmpfile "$file"
-          else
-            echo "$file not found."
-          fi
-        done
-
-    - name: Edit README 
-      run: |
-        cd Loon/Rule
-        find . -type f -name 'README.md' -print0 | while IFS= read -r -d $'\0' readme; do
-          if [ -f "$readme" ]; then
-            # 删除和替换指定的字符串
-            sed -i -e '/\*\*MASTER分支 CDN (每日更新)\*\*/d' \
-                   -e '/\*\*MASTER分支 GHProxy (每日更新)\*\*/d' \
-                   -e '/\(不定时更新\)/d' \
-                   -e '/blackmatrix7\/ios_rule_script\/release\/rule\/QuantumultX/d' \
-                   -e '/https:\/\/cdn.jsdelivr.net/d' \
-                   -e '/https:\/\/ghproxy.com/d' \
-                   -e 's|MASTER分支|分支|g' \
-                   -e 's|## QuantumultX|## Loon|g' \
-                   -e 's|blackmatrix7/ios_rule_script/master/rule/QuantumultX|Auniquesir/Tool/X/Loon/Rule|g' \
-                   -e 's|github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX|github.com/Auniquesir/Tool/tree/X/Loon/Rule|g' \
-                   -e 's|HOST|DOMAIN|g' \
-                   -e 's|IP6-CIDR|IP-CIDR6|g' \
-                   -e 's|USER-AGENT|USER-AGENT(Loon不支持)|g' \
-                   -e 's|TOTAL|TOTAL(仅供参考)|g' \
-                   -e 's|QuantumultX定制化规则|Loon定制化规则|g' \
-                   -e 's|Auniquesir/Tool/X/Loon/Rule/\(.*\)\.list|Auniquesir/Tool/X/Loon/Rule/\1.list|g' \
-                   -e 's|-\([[:space:]]*\)\([A-Za-z0-9_]*\)\.list|-\1\2.list|' \
-                   "$readme"
-          else
-            echo "$readme not found."
-          fi
-        done  
+        # 将文件保存到项目根目录
+        mv download_links.txt ./download_links.txt
 
     # 添加并提交更改
     - name: Add and Commit
