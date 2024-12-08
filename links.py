@@ -22,6 +22,9 @@ def fetch_files(url):
 
         response_body = response.json()
 
+        # 输出调试信息，检查 API 返回内容
+        print(f"API Response Body: {json.dumps(response_body, indent=2)}")  # 打印响应内容
+
         # 提取 .list 文件的下载链接
         for item in response_body:
             if item["type"] == "file" and item["name"].endswith(".list"):
@@ -47,10 +50,14 @@ def main():
     # 获取所有 .list 文件的下载链接
     download_links = fetch_files(GITHUB_API_URL)
 
-    # 将下载链接写入文件
-    with open(OUTPUT_FILE, "w") as f:
-        for link in download_links:
-            f.write(link + "\n")
+    # 如果找到下载链接，保存到文件中
+    if download_links:
+        with open(OUTPUT_FILE, "w") as f:
+            for link in download_links:
+                f.write(link + "\n")
+        print(f"Extracted download links have been saved to {OUTPUT_FILE}")
+    else:
+        print(f"No .list file links found.")
 
     # 输出所有下载链接
     print("Extracted download links:")
