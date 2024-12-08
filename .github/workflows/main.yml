@@ -19,9 +19,16 @@ jobs:
         git clone https://github.com/blackmatrix7/ios_rule_script.git
         echo "Repository cloned."
 
-    - name: List repository contents
+    - name: Check current directory
       run: |
-        echo "Listing contents of the repository to ensure it's cloned correctly..."
+        echo "Current working directory:"
+        pwd
+        echo "Listing contents of the repository:"
+        ls -R
+
+    - name: List contents of QuantumultX directory
+      run: |
+        echo "Listing contents of ios_rule_script/rule/QuantumultX:"
         ls -R ios_rule_script/rule/QuantumultX
 
     - name: Create folder for extracted links
