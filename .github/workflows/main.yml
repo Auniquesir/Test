@@ -13,15 +13,15 @@ jobs:
     - name: Checkout target repository
       uses: actions/checkout@v4.2.2
 
-    # 拉取 .list 文件下载链接并保存到 txt 文件
+    # 拉取 .list 文件下载链接并保存到 log 文件
     - name: Fetch .list file links recursively with pagination
       run: |
         # GitHub API URL for the main directory
         GITHUB_API_URL="https://api.github.com/repos/blackmatrix7/ios_rule_script/contents/rule/QuantumultX"
         
         # 输出文件路径
-        OUTPUT_FILE="quantumultx_list_links.txt"
-
+        OUTPUT_FILE="quantumultx_list_links.log"  # 修改为 log 文件格式
+        
         # 创建空的输出文件
         echo "" > $OUTPUT_FILE
 
@@ -33,10 +33,14 @@ jobs:
             # 请求当前 URL 并获取分页数据（指定每页最多返回 100 条）
             response=$(curl -s -H "Accept: application/vnd.github.v3+json" "$url?per_page=100")
             
+            # 打印响应内容以调试
+            echo "Response: $response"  # 打印返回的内容，用于调试
+            
             # 从响应中提取下载链接（文件）或递归目录
             echo "$response" | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
               if [[ "$file_url" == *".list" ]]; then
                 # 如果是 .list 文件，则提取下载链接并保存
+                echo "Found .list file: $file_url"  # 打印找到的 .list 文件链接
                 echo $file_url >> $OUTPUT_FILE
               else
                 # 如果是目录，递归调用 fetch_files
@@ -60,8 +64,8 @@ jobs:
 
         # 打印提取的下载链接
         echo "Extracted download links:"
-        cat $OUTPUT_FILE
-
+        cat $OUTPUT_FILE  # 打印文件内容以确认
+       
     # 添加并提交更改
     - name: Add and Commit
       run: |
