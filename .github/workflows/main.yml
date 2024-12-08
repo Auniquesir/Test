@@ -32,16 +32,20 @@ jobs:
     - name: Find README.md files and extract links
       run: |
         echo "Searching for README.md files..."
-        find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" -exec echo "Found README: {}" \; | tee found_readmes.txt
+        find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" | tee found_readmes.txt
         echo "Found README.md files listed in found_readmes.txt."
         
-        # 从 README.md 文件中提取符合条件的链接
+        # 从 README.md 文件中提取符合条件的链接并去重
         find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" | while read file; do
           echo "Processing $file"
           
-          # 检查文件是否包含目标链接
-          grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' "$file" | tee -a QuantumultX_files/links_from_readme.txt
+          # 使用 grep 提取符合条件的链接，并通过 sort -u 去重
+          grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' "$file" >> QuantumultX_files/links_from_readme.txt
         done
+
+        # 去重提取的链接
+        sort -u QuantumultX_files/links_from_readme.txt -o QuantumultX_files/links_from_readme.txt
+        echo "Links extracted and duplicates removed."
 
     - name: Check extracted links
       run: |
