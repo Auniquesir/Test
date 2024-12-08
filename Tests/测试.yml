@@ -4,6 +4,81 @@ on:
   workflow_dispatch:
 
 jobs:
+  ExtractLinks:
+    runs-on: ubuntu-24.04
+    env:
+      TZ: 'Asia/Shanghai'
+
+    steps:
+    - name: Checkout target repository
+      uses: actions/checkout@v4.2.2
+
+    - name: Clone the repository
+      run: |
+        echo "Cloning repository..."
+        git clone https://github.com/blackmatrix7/ios_rule_script.git
+        echo "Repository cloned."
+
+    - name: List repository contents
+      run: |
+        echo "Listing contents of the repository to ensure it's cloned correctly..."
+        ls -R ios_rule_script/rule/QuantumultX
+
+    - name: Create folder for extracted links
+      run: |
+        mkdir -p QuantumultX_files
+        echo "Folder for extracted links created."
+
+    - name: Find README.md files and extract links
+      run: |
+        echo "Searching for README.md files..."
+        find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" -exec echo "Found README: {}" \; | tee found_readmes.txt
+        echo "Found README.md files listed in found_readmes.txt."
+        
+        # 从 README.md 文件中提取符合条件的链接
+        find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" | while read file; do
+          echo "Processing $file"
+          
+          # 检查文件是否包含目标链接
+          grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' "$file" | tee -a QuantumultX_files/links_from_readme.txt
+        done
+
+    - name: Check extracted links
+      run: |
+        echo "Extracted links:"
+        cat QuantumultX_files/links_from_readme.txt
+
+    - name: Upload extracted links as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: readme-links
+        path: QuantumultX_files/links_from_readme.txt
+
+    - name: Add and Commit
+      run: |
+        if [[ -n $(git status -s) ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin X
+          git push origin X
+        else
+          echo "No changes to commit."
+        fi
+
+    # 清理工作流
+    - name: Cleanup Workflow
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 0
+        keep_minimum_runs: 2
+
+
+on:
+  workflow_dispatch:
+
+jobs:
   ForkRules:
     runs-on: ubuntu-24.04
     env:
