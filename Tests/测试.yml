@@ -167,3 +167,52 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
+
+
+
+name: Extract .list Download Links
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # 每天运行一次
+
+jobs:
+  extract-download-links:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: sudo apt-get update && sudo apt-get install -y curl jq
+
+    - name: Fetch .list Download Links
+      run: |
+        # 获取页面HTML内容
+        curl -sL https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX > page.html
+
+        # 提取 .list 文件相对路径
+        grep -oP 'href=".*?\.list"' page.html |
+        sed -e 's/href="//' -e 's/"//' |
+        awk '{print "https://raw.githubusercontent.com"$0}' |
+        sed 's/github.com/blackmatrix7\/ios_rule_script\/master/' > download_links.txt
+
+        # 查看结果
+        cat download_links.txt
+
+    - name: Save Output
+      run: |
+        # 将文件保存到项目根目录
+        mv download_links.txt ./download_links.txt
+
+    - name: Commit and Push Download Links
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add download_links.txt
+        git commit -m "Update download_links.txt"
+        git push
