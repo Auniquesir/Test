@@ -38,6 +38,10 @@ jobs:
             continue
           fi
 
+          # 输出文件内容，检查文件是否正常
+          echo "Contents of $file:"
+          cat "$file"
+
           # 使用 grep 提取文件中的 .list 文件下载链接，并追加到 links.txt 中
           links=$(grep -o 'https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX[^"]*\.list' "$file" || echo "grep failed")
 
