@@ -1,6 +1,0 @@
-# 规则名称: Anthropic.list
-# 规则统计: 3
-
-DOMAIN,servd-anthropic-website.b-cdn.net
-DOMAIN-SUFFIX,anthropic.com
-DOMAIN-SUFFIX,claude.ai

@@ -1,6 +1,0 @@
-# 规则名称: iTalkBB.list
-# 规则统计: 3
-
-DOMAIN-SUFFIX,api.tv.colnv.com
-DOMAIN-SUFFIX,italkbb.com
-DOMAIN-SUFFIX,italkbbtv.com

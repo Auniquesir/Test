@@ -1,6 +1,0 @@
-# 规则名称: Deezer.list
-# 规则统计: 3
-
-DOMAIN-SUFFIX,deezer.com
-DOMAIN-SUFFIX,dzcdn.net
-USER-AGENT,Deezer*

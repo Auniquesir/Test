@@ -1,7 +1,0 @@
-# 规则名称: Gog.list
-# 规则统计: 4
-
-DOMAIN,gog.salesmanago.com
-DOMAIN-SUFFIX,gog-statics.com
-DOMAIN-SUFFIX,gog.com
-DOMAIN-SUFFIX,gog.qtlglb.com

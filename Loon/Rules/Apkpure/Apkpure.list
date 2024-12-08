@@ -1,7 +1,0 @@
-# 规则名称: Apkpure.list
-# 规则统计: 4
-
-DOMAIN-SUFFIX,apkpure.com
-DOMAIN-SUFFIX,cdnpure.com
-DOMAIN-SUFFIX,pureapk.com
-DOMAIN-SUFFIX,winudf.com

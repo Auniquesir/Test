@@ -1,5 +1,0 @@
-# 规则名称: LastPass.list
-# 规则统计: 2
-
-DOMAIN-SUFFIX,lastpass.com
-USER-AGENT,LastPass*

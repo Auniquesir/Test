@@ -1,6 +1,0 @@
-# 规则名称: Disqus.list
-# 规则统计: 3
-
-DOMAIN-SUFFIX,disqus.com
-DOMAIN-SUFFIX,disquscdn.com
-DOMAIN-SUFFIX,disqusservice.com
