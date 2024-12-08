@@ -50,9 +50,11 @@ jobs:
         # 获取所有的 .list 文件下载链接并保存到文件
         fetch_files $DIR
 
-    - name: Check the list file links
-      run: |
-        cat QuantumultX_files/list_files_links.txt  # 打印出文件链接，查看是否获取到正确内容
+    - name: Upload the list file links as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: quantumultx-list-files
+        path: QuantumultX_files/list_files_links.txt
 
     - name: Add and Commit
       run: |
@@ -66,12 +68,6 @@ jobs:
         else
           echo "No changes to commit."
         fi
-
-    - name: Upload the list file links
-      uses: actions/upload-artifact@v3
-      with:
-        name: quantumultx-list-files
-        path: QuantumultX_files/list_files_links.txt
 
     # 清理工作流
     - name: Cleanup Workflow
