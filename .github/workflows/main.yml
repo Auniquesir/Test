@@ -15,7 +15,12 @@ jobs:
 
     - name: Download links_from_readme.txt
       run: |
-        curl -L https://raw.githubusercontent.com/Auniquesir/Test/refs/heads/X/QuantumultX_files/links_from_readme.txt?token=GHSAT0AAAAAAC255EONNIZT7M4DR4GQYGZAZ2VMTBQ -o links_from_readme.txt
+        curl -L https://raw.githubusercontent.com/Auniquesir/Test/X/QuantumultX_files/links_from_readme.txt -o links_from_readme.txt
+        # 检查下载文件是否存在
+        if [ ! -f links_from_readme.txt ]; then
+          echo "Failed to download the file"
+          exit 1
+        fi
 
     - name: Remove duplicate links
       run: |
