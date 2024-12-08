@@ -45,13 +45,16 @@ jobs:
               exit 1
             fi
 
-            # 确保返回的数据是有效的 JSON 格式
+            # 检查返回的数据是否是有效的 JSON 格式
             if ! echo "$response_body" | jq empty; then
               echo "Invalid JSON response from GitHub API"
               exit 1
             fi
 
-            # 检查是否存在需要提取的 .list 文件下载链接
+            # 打印出所有文件和文件夹的名称和类型，帮助调试
+            echo "$response_body" | jq -r '.[] | .name + " (" + .type + ")"'  # 输出文件类型和名称
+
+            # 处理文件和目录
             echo "$response_body" | jq -r '.[] | select(.type == "file" and .name | endswith(".list")) | .download_url' | while read -r file_url; do
               if [[ -n "$file_url" ]]; then
                 echo "Found .list file: $file_url"
