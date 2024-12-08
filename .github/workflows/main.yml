@@ -27,9 +27,10 @@ jobs:
         echo "Page content saved in page.html:"
         cat page.html
         
-        # 提取 .list 文件的相对路径
+        # 使用简单正则表达式提取所有包含 .list 的链接
         echo "Extracting .list file links..."
-        grep -oP 'href=".*?\.list"' page.html | sed -e 's/href="//' -e 's/"//' > links.txt
+        grep -o 'href="[^"]*\.list"' page.html | \
+        sed -e 's/href="//' -e 's/"//' > links.txt
         
         # 打印提取的链接进行调试
         echo "Extracted links:"
@@ -45,7 +46,8 @@ jobs:
 
     - name: Save Output
       run: |
-        echo "No need to move or copy download_links.txt, it is already in the root directory."
+        # 保存文件到项目根目录
+        cp download_links.txt ./download_links.txt
 
     - name: Add and Commit
       run: |
