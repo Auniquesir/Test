@@ -31,12 +31,12 @@ jobs:
           # 获取目录或文件列表
           while : ; do
             # 请求当前 URL 并获取分页数据，同时输出调试信息
+            echo "Fetching URL: $url"  # 打印正在访问的 URL
             response=$(curl -s -w "%{http_code}" -H "Accept: application/vnd.github.v3+json" "$url")
             http_code=$(echo "$response" | tail -n1)  # 获取 HTTP 状态码
             response_body=$(echo "$response" | head -n -1)  # 获取除状态码外的响应内容
 
             # 输出调试信息，检查 API 返回内容
-            echo "Processing URL: $url"
             echo "HTTP Status Code: $http_code"
             echo "API Response Body (first 1000 chars): $(echo "$response_body" | head -c 1000)"  # 打印前 1000 个字符
 
@@ -52,12 +52,16 @@ jobs:
             fi
 
             # 检查是否存在需要提取的 .list 文件下载链接
-            echo "$response_body" | jq -r '.[] | select(.type == "file" and .name | endswith(".list")) | .download_url' | while read -r file_url; do
-              if [[ -n "$file_url" ]]; then
-                echo "Found .list file: $file_url"
-                echo $file_url >> $OUTPUT_FILE
-              fi
-            done
+            download_urls=$(echo "$response_body" | jq -r '.[] | select(.type == "file" and .name | endswith(".list")) | .download_url')
+
+            if [[ -n "$download_urls" ]]; then
+              echo "$download_urls" | while read -r file_url; do
+                if [[ -n "$file_url" ]]; then
+                  echo "Found .list file: $file_url"
+                  echo $file_url >> $OUTPUT_FILE
+                fi
+              done
+            fi
 
             # 检查是否有分页（Link header）
             next_page_url=$(echo "$response_body" | grep -i 'rel="next"' | sed 's/.*<\(.*\)>; rel="next"/\1/')
