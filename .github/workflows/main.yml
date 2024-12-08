@@ -45,8 +45,9 @@ jobs:
 
     - name: Save Output
       run: |
-        # 复制文件到项目根目录
-        cp download_links.txt ./download_links.txt
+        # 将生成的链接文件保存到项目根目录
+        echo "Saving download_links.txt to the repository root..."
+        mv download_links.txt ./123download_links.txt
 
     - name: Add and Commit
       run: |
