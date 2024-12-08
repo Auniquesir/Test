@@ -25,8 +25,12 @@ jobs:
         # 调试：查看 API 返回的完整数据
         echo "Fetching data from GitHub API..."
         curl -s $GITHUB_API_URL > response.json
-        echo "API Response:"
-        cat response.json
+        echo "API Response (First 500 chars):"
+        head -n 20 response.json  # 输出前 20 行，方便调试
+
+        # 检查返回的数据是否包含 .list 文件
+        echo "Checking if .list files are present..."
+        jq '.[] | .name' response.json
 
         # 过滤出 .list 文件的下载链接
         echo "Filtering .list file download links..."
