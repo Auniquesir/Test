@@ -16,26 +16,30 @@ jobs:
     - name: Create a folder to store the list file links
       run: mkdir -p QuantumultX_files
 
-    - name: Debug API response
+    - name: Recursive fetch of .list file links
       run: |
         REPO="blackmatrix7/ios_rule_script"
         BRANCH="master"
         DIR="rule/QuantumultX"
         
-        # 获取文件列表并打印出来检查
-        curl -s "https://api.github.com/repos/$REPO/contents/$DIR?ref=$BRANCH" > QuantumultX_files/api_response.json
-        cat QuantumultX_files/api_response.json  # 打印 API 返回的完整响应内容
+        # Function to recursively fetch .list files
+        fetch_files() {
+          local path=$1
+          # 获取当前目录下的文件和子目录列表
+          curl -s "https://api.github.com/repos/$REPO/contents/$path?ref=$BRANCH" \
+            | jq -r '.[] | 
+                if .type == "file" and .name | endswith(".list") then
+                  .download_url
+                elif .type == "dir" then
+                  # 递归调用获取子目录内容
+                  fetch_files(.path)
+                else
+                  empty
+                end'
+        }
 
-    - name: Download .list file links
-      run: |
-        REPO="blackmatrix7/ios_rule_script"
-        BRANCH="master"
-        DIR="rule/QuantumultX"
-
-        # 获取所有文件的 URL（仅 .list 文件）
-        curl -s "https://api.github.com/repos/$REPO/contents/$DIR?ref=$BRANCH" \
-          | jq -r '.[] | select(.name | endswith(".list")) | .download_url' \
-          > QuantumultX_files/list_files_links.txt  # 将下载链接保存到文件
+        # 获取所有的 .list 文件下载链接
+        fetch_files $DIR > QuantumultX_files/list_files_links.txt
 
     - name: Check the list file links
       run: |
