@@ -1,82 +1,57 @@
-name: Fork Rules
+name: Get QuantumultX List Files
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  ForkRules:
-    runs-on: ubuntu-24.04
-    env:
-      TZ: 'Asia/Shanghai'
+  fetch-quantumultx-links:
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout target repository
-      uses: actions/checkout@v4.2.2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update && sudo apt-get install -y curl jq
+      - name: Fetch .list file links
+        run: |
+          # GitHub API URL
+          GITHUB_API_URL="https://api.github.com/repos/blackmatrix7/ios_rule_script/contents/rule/QuantumultX"
 
-    - name: Fetch .list Download Links
-      run: |
-        # 获取页面HTML内容
-        echo "Fetching page content..."
-        curl -sL https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX > page.html
+          # 输出文件
+          OUTPUT_FILE="quantumultx_list_links.txt"
 
-        # 打印获取到的 HTML 内容
-        echo "Page content saved in page.html:"
-        cat page.html
+          # 获取文件列表并提取 .list 文件的下载链接
+          curl -s $GITHUB_API_URL | jq -r '.[] | select(.name | endswith(".list")) | .download_url' > $OUTPUT_FILE
 
-        # 使用简单正则表达式提取所有包含 .list 的链接
-        echo "Extracting .list file links..."
-        grep -o 'href="[^"]*\.list"' page.html | \
-        sed -e 's/href="//' -e 's/"//' > links.txt
+          # 打印文件链接
+          cat $OUTPUT_FILE
 
-        # 打印提取的链接
-        echo "Extracted .list links:"
-        cat links.txt
+      - name: Upload the links file as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: quantumultx-list-links
+          path: quantumultx_list_links.txt
 
-        # 生成可以直接下载的链接
-        echo "Generating full download links..."
-        awk '{print "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/"$0}' links.txt > download_links.txt
 
-        # 打印生成的下载链接
-        echo "Download links generated:"
-        cat download_links.txt
 
-    - name: Save Output
-      run: |
-        # 确保文件存在并输出调试信息
-        if [ -f "./download_links.txt" ]; then
-          echo "Download links file created successfully."
-        else
-          echo "Download links file not created."
-        fi
+      - name: Add and Commit
+        run: |
+          # 检查是否有更改
+          if [[ -n $(git status -s) ]]; then
+            echo "Changes detected, committing to the repository..."
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add -A
+            git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
+            git pull --rebase origin X
+            git push origin X
+          else
+            echo "No changes to commit."
+          fi
 
-        # 处理生成的下载链接文件
-        if [ -f "download_links.txt" ]; then
-          cp download_links.txt ./download_links.txt
-        else
-          echo "No download links to save."
-        fi
-
-    - name: Add and Commit
-      run: |
-        # 检查是否有更改
-        if [[ -n $(git status -s) ]]; then
-          echo "Changes detected, committing to the repository..."
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
-          git pull --rebase origin X
-          git push origin X
-        else
-          echo "No changes to commit."
-        fi
-
-    - name: Cleanup Workflow
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 0
-        keep_minimum_runs: 2
+      - name: Cleanup Workflow
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 0
+          keep_minimum_runs: 2
