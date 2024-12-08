@@ -15,21 +15,34 @@ jobs:
 
     - name: Clone the repository
       run: |
-        # 克隆仓库到本地
+        # 克隆仓库到本地，并输出调试信息
+        echo "Cloning repository..."
         git clone https://github.com/blackmatrix7/ios_rule_script.git
+        echo "Repository cloned successfully."
 
     - name: Create folder for extracted links
-      run: mkdir -p QuantumultX_files
+      run: |
+        # 创建保存文件的文件夹
+        mkdir -p QuantumultX_files
+        echo "Created folder for extracted links."
 
     - name: Find README.md files and extract links
       run: |
-        # 查找所有 README.md 文件
+        # 查找所有 README.md 文件并提取链接
+        echo "Searching for README.md files..."
         find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" | while read file; do
           echo "Processing $file"
           
           # 从 README.md 文件中提取符合条件的链接
           grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' "$file" >> QuantumultX_files/links_from_readme.txt
+          echo "Links from $file extracted."
         done
+
+    - name: Check extracted links
+      run: |
+        # 检查提取的链接文件
+        echo "Extracted links:"
+        cat QuantumultX_files/links_from_readme.txt
 
     - name: Upload extracted links as artifact
       uses: actions/upload-artifact@v3
