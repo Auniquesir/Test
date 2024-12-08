@@ -14,31 +14,46 @@ jobs:
       uses: actions/checkout@v4.2.2
 
     - name: Install Dependencies
-      run: sudo apt-get update && sudo apt-get install -y curl jq
+      run: |
+        sudo apt-get update && sudo apt-get install -y curl jq
 
     - name: Fetch .list Download Links
       run: |
         # 获取页面HTML内容
+        echo "Fetching page content..."
         curl -sL https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/QuantumultX > page.html
-
-        # 提取 .list 文件相对路径
-        grep -oP 'href=".*?\.list"' page.html |
-        sed -e 's/href="//' -e 's/"//' |
-        awk '{print "https://raw.githubusercontent.com"$0}' |
-        sed 's/github.com/blackmatrix7\/ios_rule_script\/master/' > download_links.txt
-
-        # 查看结果
+        
+        # 打印页面内容进行调试
+        echo "Page content saved in page.html:"
+        cat page.html
+        
+        # 提取 .list 文件的相对路径
+        echo "Extracting .list file links..."
+        grep -oP 'href=".*?\.list"' page.html | sed -e 's/href="//' -e 's/"//' > links.txt
+        
+        # 打印提取的链接进行调试
+        echo "Extracted links:"
+        cat links.txt
+        
+        # 生成可以直接下载的链接
+        echo "Generating full download links..."
+        awk '{print "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/"$0}' links.txt > download_links.txt
+        
+        # 打印最终的下载链接
+        echo "Download links generated:"
         cat download_links.txt
 
     - name: Save Output
       run: |
-        # 将文件保存到项目根目录
-        mv download_links.txt ./new_download_links.txt
+        # 将生成的链接文件保存到项目根目录
+        echo "Saving download_links.txt to the repository root..."
+        mv download_links.txt ./download_links.txt
 
-    # 添加并提交更改
     - name: Add and Commit
       run: |
+        # 检查是否有更改
         if [[ -n $(git status -s) ]]; then
+          echo "Changes detected, committing to the repository..."
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
@@ -49,7 +64,6 @@ jobs:
           echo "No changes to commit."
         fi
 
-    # 清理工作流
     - name: Cleanup Workflow
       uses: Mattraks/delete-workflow-runs@main
       with:
