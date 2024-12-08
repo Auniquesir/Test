@@ -1,4 +1,3 @@
-
 name: Fork Rules
 
 on:
@@ -14,46 +13,26 @@ jobs:
     - name: Checkout target repository
       uses: actions/checkout@v4.2.2
 
-    - name: Clone the repository
+    - name: Download links_from_readme.txt
       run: |
-        echo "Cloning repository..."
-        git clone https://github.com/blackmatrix7/ios_rule_script.git
-        echo "Repository cloned."
+        curl -L https://raw.githubusercontent.com/Auniquesir/Test/refs/heads/X/QuantumultX_files/links_from_readme.txt?token=GHSAT0AAAAAAC255EONNIZT7M4DR4GQYGZAZ2VMTBQ -o links_from_readme.txt
 
-    - name: List repository contents
+    - name: Remove duplicate links
       run: |
-        echo "Listing contents of the repository to ensure it's cloned correctly..."
-        ls -R ios_rule_script/rule/QuantumultX
+        sort links_from_readme.txt | uniq > unique_links.txt
 
-    - name: Create folder for extracted links
+    - name: Commit unique links file
       run: |
-        mkdir -p QuantumultX_files
-        echo "Folder for extracted links created."
-
-    - name: Find README.md files and extract links
-      run: |
-        echo "Searching for README.md files..."
-        find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" -exec echo "Found README: {}" \; | tee found_readmes.txt
-        echo "Found README.md files listed in found_readmes.txt."
-        
-        # 从 README.md 文件中提取符合条件的链接
-        find ./ios_rule_script/rule/QuantumultX -type f -name "README.md" | while read file; do
-          echo "Processing $file"
-          
-          # 检查文件是否包含目标链接
-          grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' "$file" | tee -a QuantumultX_files/links_from_readme.txt
-        done
-
-    - name: Check extracted links
-      run: |
-        echo "Extracted links:"
-        cat QuantumultX_files/links_from_readme.txt
-
-    - name: Upload extracted links as artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: readme-links
-        path: QuantumultX_files/links_from_readme.txt
+        if [[ -n $(git status -s) ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add unique_links.txt
+          git commit -m "Add unique links file $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin X
+          git push origin X
+        else
+          echo "No changes to commit."
+        fi
 
     - name: Add and Commit
       run: |
