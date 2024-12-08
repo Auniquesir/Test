@@ -28,29 +28,28 @@ jobs:
 
     - name: Commit unique links file
       run: |
+        # 确保工作区干净
+        git add unique_links.txt
         if [[ -n $(git status -s) ]]; then
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add unique_links.txt
           git commit -m "Add unique links file $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
-          git pull --rebase origin X
-          git push origin X
         else
           echo "No changes to commit."
         fi
 
-    - name: Add and Commit
+    - name: Ensure working directory is clean and pull latest changes
       run: |
+        # 暂存未提交的更改（如果有的话）
         if [[ -n $(git status -s) ]]; then
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
-          git pull --rebase origin X
-          git push origin X
-        else
-          echo "No changes to commit."
+          git stash
         fi
+        git pull --rebase origin X
+        # 如果有暂存的更改，恢复它们
+        if [[ -n $(git stash list) ]]; then
+          git stash pop
+        fi
+        git push origin X
 
     # 清理工作流
     - name: Cleanup Workflow
