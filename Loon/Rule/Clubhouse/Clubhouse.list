@@ -1,8 +1,0 @@
-# 规则名称: Clubhouse
-# 规则统计: 5
-
-DOMAIN,clubhouse.pubnub.com
-DOMAIN,clubhouseprod.s3.amazonaws.com
-DOMAIN-SUFFIX,clubhouse.com
-DOMAIN-SUFFIX,clubhouseapi.com
-DOMAIN-SUFFIX,joinclubhouse.com

@@ -1,6 +1,0 @@
-# 规则名称: Jsdelivr
-# 规则统计: 3
-
-DOMAIN-SUFFIX,esm.run
-DOMAIN-SUFFIX,jsdelivr.com
-DOMAIN-SUFFIX,jsdelivr.net

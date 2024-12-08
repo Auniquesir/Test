@@ -1,8 +1,0 @@
-# 规则名称: Jwplayer
-# 规则统计: 5
-
-DOMAIN-SUFFIX,jwpcdn.com
-DOMAIN-SUFFIX,jwplatform.com
-DOMAIN-SUFFIX,jwplayer.com
-DOMAIN-SUFFIX,jwpltx.com
-DOMAIN-SUFFIX,jwpsrv.com

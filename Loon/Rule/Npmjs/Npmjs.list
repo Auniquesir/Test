@@ -1,6 +1,0 @@
-# 规则名称: Npmjs
-# 规则统计: 3
-
-DOMAIN-SUFFIX,npm.community
-DOMAIN-SUFFIX,npmjs.com
-DOMAIN-SUFFIX,npmjs.org
