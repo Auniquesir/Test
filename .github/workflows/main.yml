@@ -32,6 +32,13 @@ jobs:
           while true; do
             # 获取当前目录下的文件和子目录列表
             response=$(curl -s "https://api.github.com/repos/$REPO/contents/$path?ref=$BRANCH&per_page=$per_page&page=$page")
+            if [[ $? -ne 0 ]]; then
+              echo "Error: Failed to fetch data for $path"
+              exit 1
+            fi
+
+            # 打印调试信息
+            echo "Fetching page $page for path $path"
             
             # 循环处理目录和文件
             for item in $(echo "$response" | jq -r '.[] | @base64'); do
@@ -42,7 +49,13 @@ jobs:
               # 如果是 README.md 文件，获取其内容并提取链接
               if [[ $(_jq '.type') == "file" && $(_jq '.name') == "README.md" ]]; then
                 readme_url=$(_jq '.download_url')
+                echo "Fetching README from: $readme_url"
                 readme_content=$(curl -s "$readme_url")
+
+                if [[ $? -ne 0 ]]; then
+                  echo "Error: Failed to fetch content from $readme_url"
+                  continue
+                fi
 
                 # 使用 grep 提取包含特定下载链接的行，并保存到文件
                 echo "$readme_content" | grep -o 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/[^"]*' >> QuantumultX_files/links_from_readme.txt
@@ -87,7 +100,4 @@ jobs:
 
     # 清理工作流
     - name: Cleanup Workflow
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 0
-        keep_minimum_runs: 2
+ 
