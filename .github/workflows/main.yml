@@ -35,7 +35,15 @@ jobs:
             
             # 输出调试信息，检查 API 返回内容
             echo "Processing URL: $url"
-            echo "$response" | jq -r '.[] | .name'  # 打印所有文件/目录的名称
+            echo "API Response: $response"  # 打印返回的响应内容
+
+            # 确保返回的数据是有效的 JSON 格式
+            if echo "$response" | jq empty; then
+              echo "$response" | jq -r '.[] | .name'  # 打印所有文件/目录的名称
+            else
+              echo "Invalid JSON response from GitHub API"
+              exit 1
+            fi
 
             # 从响应中提取下载链接（文件）或递归目录
             echo "$response" | jq -r '.[] | if .type == "file" then .download_url else if .type == "dir" then .url else empty end end' | while read -r file_url; do
