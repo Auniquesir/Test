@@ -36,22 +36,13 @@ jobs:
         mv download_links.txt ./download_links.txt
 
     # 添加并提交更改
-    - name: Add and Commit
+    - name: Commit and Push Download Links
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        if [[ -n $(git status -s) ]]; then
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git commit -m "Auto Update $(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M')"
-          git pull --rebase origin X
-          git push origin X
-        else
-          echo "No changes to commit."
-        fi
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add download_links.txt
+        git commit -m "Update download_links.txt"
+        git push
 
-    # 清理工作流
-    - name: Cleanup Workflow
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 0
-        keep_minimum_runs: 2
